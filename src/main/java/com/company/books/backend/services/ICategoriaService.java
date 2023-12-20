@@ -7,5 +7,6 @@ import com.company.books.backend.response.CategoriaResponseRest;
 public interface ICategoriaService {
 
 	public ResponseEntity<CategoriaResponseRest> buscarCategorias();
+	public ResponseEntity<CategoriaResponseRest> buscarPorId(Long id);
 	
 }

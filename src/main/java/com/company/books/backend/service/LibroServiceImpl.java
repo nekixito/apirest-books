@@ -1,6 +1,8 @@
 package com.company.books.backend.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,37 @@ public class LibroServiceImpl implements ILibroService {
 		}
 		
 		return new ResponseEntity<LibroResponseRest>(response, HttpStatus.OK); //Devuelve 200
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ResponseEntity<LibroResponseRest> buscarPorId(Long id) {
+		log.info("Inicio de método buscarPorId()");
+		
+		LibroResponseRest response = new LibroResponseRest();
+		List<Libro> listaLibros = new ArrayList<>();
+		
+		try {
+			
+			Optional<Libro> libroBuscado = libroDao.findById(id);
+			
+			if (libroBuscado.isPresent()) {
+				listaLibros.add(libroBuscado.get());
+				response.getLibroResponse().setLibro(listaLibros);
+			}else {
+				log.error("Error al consultar libro");
+				response.setMetadata("Respuesta NOT OK","-1","Libro no encontrado");
+				return new ResponseEntity<LibroResponseRest>(response,HttpStatus.NOT_FOUND);
+			}
+		} catch (Exception e) {
+			response.setMetadata("Respuesta NOT OK","-1","Respuesta incorrecta");
+			log.error("Error al consultar libro: ", e.getMessage());
+			e.printStackTrace();
+			return new ResponseEntity<LibroResponseRest>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		response.setMetadata("Respuesta OK","00","Respuesta exitosa");
+		return new ResponseEntity<LibroResponseRest>(response,HttpStatus.OK);
 	}
 
 }

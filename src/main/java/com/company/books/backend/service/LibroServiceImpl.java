@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.company.books.backend.model.Libro;
 import com.company.books.backend.model.dao.ILibroDao;
-import com.company.books.backend.response.CategoriaResponseRest;
 import com.company.books.backend.response.LibroResponseRest;
 
 @Service
@@ -112,6 +111,75 @@ public class LibroServiceImpl implements ILibroService {
 		
 		response.setMetadata("Respuesta OK","00","Respuesta exitosa");
 		return new ResponseEntity<LibroResponseRest>(response, HttpStatus.OK);
+	}
+
+	@Override
+	@Transactional
+	public ResponseEntity<LibroResponseRest> actualizar(Libro libro, Long id) {
+		log.info("Inicio de método actualizar()");
+		
+		LibroResponseRest response = new LibroResponseRest();
+		List<Libro> list = new ArrayList<>();
+		
+		try {
+			 Optional<Libro> libroBuscado = libroDao.findById(id);
+			
+			if(libroBuscado.isPresent()) {
+				
+				libroBuscado.get().setNombre(libro.getNombre());
+				libroBuscado.get().setDescripcion(libro.getDescripcion());
+				libroBuscado.get().setCategoria(libro.getCategoria());
+				
+				Libro libroActualizado = libroDao.save(libroBuscado.get());
+				
+				if(libroActualizado != null) {
+					response.setMetadata("Respuesta OK","00","Libro actualizado");
+					list.add(libroActualizado);
+					response.getLibroResponse().setLibro(list);
+				}else {
+					log.error("Error en grabar libro");
+					response.setMetadata("Respuesta nok","-1","Libro no actualizado");
+					return new ResponseEntity<LibroResponseRest>(response, HttpStatus.BAD_REQUEST); //
+				}
+
+			}else {
+				
+				log.error("Error al actualizar libro");
+				response.setMetadata("Respuesta NOT OK","-1","Libro no actualizado");
+				return new ResponseEntity<LibroResponseRest>(response, HttpStatus.NOT_FOUND); // 
+			}
+			
+			
+		} catch (Exception e) {
+			response.setMetadata("Respuesta NOT OK","-1","Respuesta incorrecta");
+			log.error("Error al actualizar libro: ", e.getMessage());
+			e.printStackTrace();
+			return new ResponseEntity<LibroResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		
+		return new ResponseEntity<LibroResponseRest>(response, HttpStatus.OK);
+	}
+
+	@Override
+	@Transactional
+	public ResponseEntity<LibroResponseRest> eliminar(Long id) {
+		log.info("Inicio de metodo eliminarPorId()");
+		
+		LibroResponseRest response = new LibroResponseRest();
+		
+		try {
+			libroDao.deleteById(id);
+			response.setMetadata("Respuesta OK","00","Libro eliminado");
+			
+		} catch (Exception e) {
+			response.setMetadata("Respuesta NOT OK","-1","Libro no eliminado");
+			log.error("Error al eliminar libro: ", e.getMessage());
+			e.printStackTrace();
+			return new ResponseEntity<LibroResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR); //
+		}
+		
+		return new ResponseEntity<LibroResponseRest>(response, HttpStatus.OK); 
 	}
 
 }

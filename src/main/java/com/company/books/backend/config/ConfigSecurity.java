@@ -2,9 +2,13 @@ package com.company.books.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class ConfigSecurity {
@@ -32,5 +36,24 @@ public class ConfigSecurity {
 		
 		return new InMemoryUserDetailsManager(miguel, agustin, edita);
 		
+	}
+	
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+		
+		http.authorizeHttpRequests(configure -> {
+			configure
+				.requestMatchers(HttpMethod.GET,"/v1/libros").hasRole("Empleado")
+				.requestMatchers(HttpMethod.GET,"/v1/libros/**").hasRole("Empleado")
+				.requestMatchers(HttpMethod.POST,"/v1/libros").hasRole("Jefe")
+				.requestMatchers(HttpMethod.PUT,"/v1/libros/**").hasRole("Jefe")
+				.requestMatchers(HttpMethod.DELETE,"/v1/libros/**").hasRole("Jefe");
+		});
+		
+		http.httpBasic(Customizer.withDefaults());
+		
+		http.csrf( crsf -> crsf.disable());
+		
+		return http.build();
 	}
 }

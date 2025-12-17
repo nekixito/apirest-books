@@ -1,5 +1,7 @@
 package com.company.books.backend.config;
 
+import javax.sql.DataSource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -8,34 +10,17 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class ConfigSecurity {
 	
 	@Bean
-	public InMemoryUserDetailsManager userDetailsManager() {
+	public UserDetailsManager userDetailsManager(DataSource datasource) {
 		
-		UserDetails miguel = User.builder()
-				.username("miguel")
-				.password("{noop}miguel123")
-				.roles("Empleado")
-				.build();
-		
-		UserDetails agustin= User.builder()
-				.username("agustin")
-				.password("{noop}agustin123")
-				.roles("Empleado","Jefe")
-				.build();
-		
-		UserDetails edita = User.builder()
-				.username("edita")
-				.password("{noop}edita123")
-				.roles("Empleado","Jefe")
-				.build();
-		
-		return new InMemoryUserDetailsManager(miguel, agustin, edita);
-		
+		return new JdbcUserDetailsManager(datasource);
 	}
 	
 	@Bean
@@ -47,7 +32,12 @@ public class ConfigSecurity {
 				.requestMatchers(HttpMethod.GET,"/v1/libros/**").hasRole("Empleado")
 				.requestMatchers(HttpMethod.POST,"/v1/libros").hasRole("Jefe")
 				.requestMatchers(HttpMethod.PUT,"/v1/libros/**").hasRole("Jefe")
-				.requestMatchers(HttpMethod.DELETE,"/v1/libros/**").hasRole("Jefe");
+				.requestMatchers(HttpMethod.DELETE,"/v1/libros/**").hasRole("Jefe")
+				.requestMatchers(HttpMethod.GET,"/v1/categorias").hasRole("Empleado")
+				.requestMatchers(HttpMethod.GET,"/v1/categorias/**").hasRole("Empleado")
+				.requestMatchers(HttpMethod.POST,"/v1/categorias").hasRole("Jefe")
+				.requestMatchers(HttpMethod.PUT,"/v1/categorias/**").hasRole("Jefe")
+				.requestMatchers(HttpMethod.DELETE,"/v1/categorias/**").hasRole("Jefe");
 		});
 		
 		http.httpBasic(Customizer.withDefaults());
@@ -55,5 +45,30 @@ public class ConfigSecurity {
 		http.csrf( crsf -> crsf.disable());
 		
 		return http.build();
+		/*
+		@Bean
+		public InMemoryUserDetailsManager userDetailsManager() {
+			
+			UserDetails miguel = User.builder()
+					.username("miguel")
+					.password("{noop}miguel123")
+					.roles("Empleado")
+					.build();
+			
+			UserDetails agustin= User.builder()
+					.username("agustin")
+					.password("{noop}agustin123")
+					.roles("Empleado","Jefe")
+					.build();
+			
+			UserDetails edita = User.builder()
+					.username("edita")
+					.password("{noop}edita123")
+					.roles("Empleado","Jefe")
+					.build();
+			
+			return new InMemoryUserDetailsManager(miguel, agustin, edita);
+			
+		}*/
 	}
 }

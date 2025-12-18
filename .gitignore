@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Servicio que genera token ###
+/src/main/java/com/company/books/backend/service/JwtService.java

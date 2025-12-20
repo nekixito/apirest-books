@@ -5,7 +5,9 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +15,9 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import jakarta.annotation.security.PermitAll;
 
 @Configuration
 public class ConfigSecurity {
@@ -37,7 +42,8 @@ public class ConfigSecurity {
 				.requestMatchers(HttpMethod.GET,"/v1/categorias/**").hasRole("Empleado")
 				.requestMatchers(HttpMethod.POST,"/v1/categorias").hasRole("Jefe")
 				.requestMatchers(HttpMethod.PUT,"/v1/categorias/**").hasRole("Jefe")
-				.requestMatchers(HttpMethod.DELETE,"/v1/categorias/**").hasRole("Jefe");
+				.requestMatchers(HttpMethod.DELETE,"/v1/categorias/**").hasRole("Jefe")
+				.requestMatchers("/v1/authenticate").permitAll();
 		});
 		
 		http.httpBasic(Customizer.withDefaults());
@@ -70,5 +76,12 @@ public class ConfigSecurity {
 			return new InMemoryUserDetailsManager(miguel, agustin, edita);
 			
 		}*/
+	}
+	
+	@Bean
+	AuthenticationManager authenticationManager(AuthenticationConfiguration 
+			authenticationConfiguration) throws Exception {
+		
+		return authenticationConfiguration.getAuthenticationManager();
 	}
 }

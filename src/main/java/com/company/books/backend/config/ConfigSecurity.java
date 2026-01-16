@@ -53,7 +53,7 @@ public class ConfigSecurity {
 				.requestMatchers(HttpMethod.POST,"/v1/categorias").hasRole("Jefe")
 				.requestMatchers(HttpMethod.PUT,"/v1/categorias/**").hasRole("Jefe")
 				.requestMatchers(HttpMethod.DELETE,"/v1/categorias/**").hasRole("Jefe")
-				.requestMatchers("/v1/authenticate").permitAll();
+				.requestMatchers("/v1/authenticate","/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html").permitAll();
 		})
 		.addFilterBefore(jwtReqFilter, UsernamePasswordAuthenticationFilter.class)
 		.sessionManagement( (session) -> session
